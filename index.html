@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dining Philosopher's Problem</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="app.css">
+</head>
+
+<body>
+
+    <div id="heading">
+        <h1>DINING PHILOSOPHER'S PROBLEM</h1>
+    </div>
+    <section id="display">
+        <div id="image">
+            <div id="table"></div>
+            <img src="images/p1.png" alt="" class="philosopher" id="p1">
+            <img src="images/p1.png" alt="" class="philosopher" id="p2">
+            <img src="images/p1.png" alt="" class="philosopher" id="p3">
+            <img src="images/p1.png" alt="" class="philosopher" id="p4">
+            <img src="images/p1.png" alt="" class="philosopher" id="p5">
+            <div id="one">P1</div>
+            <div id="two">P2</div>
+            <div id="three">P3</div>
+            <div id="four">P4</div>
+            <div id="five">P5</div>
+
+            <img src="images/c1.png" alt="" class="chopstick" id="c0">
+            <img src="images/c1.png" alt="" class="chopstick" id="c1">
+            <img src="images/c1.png" alt="" class="chopstick" id="c2">
+            <img src="images/c1.png" alt="" class="chopstick" id="c3">
+            <img src="images/c1.png" alt="" class="chopstick" id="c4">
+            <img src="images/n1.png" alt="" id="main-bowl">
+            <img src="images/n1.png" alt="" class="noodle-bowl" id="b1">
+            <img src="images/n1.png" alt="" class="noodle-bowl" id="b2">
+            <img src="images/n1.png" alt="" class="noodle-bowl" id="b3">
+            <img src="images/n1.png" alt="" class="noodle-bowl" id="b4">
+            <img src="images/n1.png" alt="" class="noodle-bowl" id="b5">
+            <div id="blank"></div>
+        </div>
+        <div id="working">
+            <p id="user-inp">ENTER THE SEQUENCE IN WHICH YOU WANT YOUR PHILOSOPHERS TO EAT</p>
+            <div id="pno-inputs">
+                <input class="input type="text" name="pno1" id="pno1" value="1">
+                <input class="input type="text" name="pno2" id="pno2" value="2">
+                <input class="input type="text" name="pno3" id="pno3" value="3">
+                <input class="input type="text" name="pno4" id="pno4" value="4">
+                <input class="input type="text" name="pno5" id="pno5" value="5">
+            </div>
+            <br>
+            <small id="help"></small>
+            <center><button class="button" id="eat">Eat</button></center>
+            <br>
+            <ul id="st-list"></ul>
+
+        </div>
+    </section>
+</body>
+<script>
+    $(document).ready(function() {
+        let chopsticks = [1, 1, 1, 1, 1];
+        let no1, no2, no3, no4, no5;
+        let pno_list = [1, 2, 3, 4, 5];
+        let allocated_phil = [];
+        let status = '';
+        // $("#status").text(status);
+        $("#eat").click(function() {
+            status = '';
+            pno_list = [];
+            allocated_phil = [];
+            no1 = parseInt($("#pno1").val());
+            pno_list.push(no1);
+            no2 = parseInt($("#pno2").val());
+            pno_list.push(no2);
+            no3 = parseInt($("#pno3").val());
+            pno_list.push(no3);
+            no4 = parseInt($("#pno4").val());
+            pno_list.push(no4);
+            no5 = parseInt($("#pno5").val());
+            pno_list.push(no5);
+            runProcess(pno_list);
+        });
+
+        function runProcess(pno_list) {
+
+
+            // console.log("Checking resource availablity for Philosopher " + pno);
+            status += '<li style="color: black;">Checking resource availablity for all Philosophers</li>';
+            $("#st-list").html(status);
+            setTimeout(() => {
+                pno_list.forEach(pno => {
+                    if (chopsticks[pno - 1] == 1 && chopsticks[pno % 5] == 1) {
+                        console.log(pno + " " + (pno - 1) + " " + (pno % 5));
+                        status += '<li style="color: green;">Allocating resources to Philosopher ' + pno + '</li>';
+                        allocated_phil.push(pno);
+                        pno_list = $.grep(pno_list, function(value) {
+                            return value != pno;
+                        });
+                        $("#p" + pno).css("opacity", "100%");
+                        $("#b" + pno).css("opacity", "100%");
+                        $("#c" + (pno - 1)).css("opacity", "0%");
+                        $("#c" + (pno % 5)).css("opacity", "0%");
+                        $("#st-list").html(status);
+                        chopsticks[pno - 1] = 0;
+                        chopsticks[pno % 5] = 0;
+                    } else {
+                        status += '<li style="color: red;">Resources not available for Philosopher ' + pno + '</li>';
+                        $("#st-list").html(status);
+                    }
+                });
+
+                setTimeout(() => {
+                    allocated_phil.forEach(pno => {
+                        status += '<li style="color: black;">Philosopher ' + pno + ' is done eating. Freeing Resources</li>';
+                        $("#p" + pno).css("opacity", "40%");
+                        $("#b" + pno).css("opacity", "0%");
+                        $("#c" + (pno - 1)).css("opacity", "100%");
+                        $("#c" + (pno % 5)).css("opacity", "100%");
+                        $("#st-list").html(status);
+                        chopsticks[pno - 1] = 1;
+                        chopsticks[pno % 5] = 1;
+                        allocated_phil = $.grep(allocated_phil, function(value) {
+                            return value != pno;
+                        });
+                    });
+                    if (pno_list.length != 0) {
+                        runProcess(pno_list)
+                    }
+
+                }, 3000);
+            }, 2000);
+        }
+    });
+</script>
+
+</html>
